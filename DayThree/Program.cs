@@ -13,7 +13,7 @@ Console.WriteLine(ChallengeTwo("Input.txt"));
 static int ChallengeOne(string filepath)
 {
     List<string> data = BuildStringList(filepath);
-    return GetSpaceCounts(data,3,1).treeCount;
+    return GetSpaceCounts(data,3,1);
 }
 
 static long ChallengeTwo(string filepath)
@@ -23,28 +23,23 @@ static long ChallengeTwo(string filepath)
     long product = 1;
     foreach ((int,int) set in input)
     {
-        product *= GetSpaceCounts(data, set.Item1, set.Item2).treeCount;
+        product *= GetSpaceCounts(data, set.Item1, set.Item2);
     }
     
     return product;
 }
 
-static (int treeCount, int clearCount) GetSpaceCounts(List<string> data, int right, int down)
+static int GetSpaceCounts(List<string> data, int right, int down)
 {
-    int treeCount = 0, clearCount = 0, rowCount = 0, colCount = 0;
-    int rowLength = data.First().Length;
+    int treeCount = 0, colCount = 0;
 
-    do
+    for (int i = 0; i < data.Count(); i += down)
     {
-        int col = colCount % rowLength;
-        var row = data[rowCount];
-        char spot = row.ElementAt(col);
-        if (spot == '.') clearCount++;
-        else treeCount++;
-        rowCount += down;
+        if (data[i].ElementAt(colCount % (data.First().Length)) == '#')
+            treeCount++;
         colCount += right;
-    } while (rowCount < data.Count());
-    return (treeCount, clearCount);
+    }
+    return treeCount;
 
 }
 
