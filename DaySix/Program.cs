@@ -35,8 +35,34 @@ long ChallengeOne(string filepath)
 
 long ChallengeTwo(string filepath)
 {
-    return 0;
+    List<string> lines = BuildStringList(filepath);
+    long sumOfAllGroupYes = 0;
+    int lineCount = 0;
+
+    while (true) // until end of file
+    {
+        Dictionary<char,int> answers = new();
+        int person = 0;
+        while (true) // until end of group
+        {
+            if (lineCount == lines.Count()) break;
+           
+            string line = lines[lineCount++];
+            if (string.IsNullOrWhiteSpace(line)) break; 
+            person++;
+            foreach (char c in line)
+            {
+                if (!answers.ContainsKey(c)) answers[c] = 1;
+                else answers[c]++;
+            }
+        }
+
+        sumOfAllGroupYes += answers.Where(answer => answer.Value == person).Count();
+        if (lineCount == lines.Count()) break;
+    }
+    return sumOfAllGroupYes;
 }
+
 
 static List<string> BuildStringList(string fp) => File.ReadAllLines(fp).ToList();
 
