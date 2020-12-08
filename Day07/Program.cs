@@ -7,9 +7,9 @@ using System.Text.RegularExpressions;
 Regex containerRegex = new("^(.*) bags contain (.*).$");
 Regex containsRegex = new("(\\d+) (.*) bag");
 
-Console.WriteLine(ChallengeOne("Sample.txt"));
+Console.WriteLine(ChallengeOne("Sample.txt") == 4);
 Console.WriteLine(ChallengeOne("Input.txt"));
-Console.WriteLine(ChallengeTwo("Sample.txt"));
+Console.WriteLine(ChallengeTwo("Sample1.txt") == 126);
 Console.WriteLine(ChallengeTwo("Input.txt"));
 
 
@@ -25,7 +25,8 @@ long ChallengeOne(string filepath)
 long ChallengeTwo(string filepath)
 {
     Dictionary<string, Dictionary<string, int>> rules = BuildRuleSet(BuildStringList(filepath));
-    return rules.Count();
+
+    return GetContainersWithin("shiny gold", rules);
 }
 
 Dictionary<string, Dictionary<string, int>> BuildRuleSet(List<string> input)
@@ -63,10 +64,24 @@ void GetContainersThatHold(string color, HashSet<string> containers, Dictionary<
         if(container.Value.ContainsKey(color))
         {
             containers.Add(container.Key);
-            if (d.TryGetValue(container.Key, out var keyValuePairs))
+            if (d.TryGetValue(container.Key, out var _))
                 GetContainersThatHold(container.Key, containers, d);
         }
     }
+}
+
+int GetContainersWithin(string color, Dictionary<string,Dictionary<string,int>> d)
+{
+    int results = 0;
+    
+    d.TryGetValue(color, out var dict);
+    results += dict.Sum(kvp => kvp.Value);
+    dict.Where(kvp => kvp.Value != 0).ToList().ForEach(kvp =>
+    {
+        results += GetContainersWithin(kvp.Key, d) * kvp.Value;
+    });
+
+    return results;
 }
 
 
