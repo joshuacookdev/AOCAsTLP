@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-
 long ChallengeOne(string filepath, int preamble)
 {
-    var data = BuildData(filepath);
+    List<long> data = BuildData(filepath);
 
-    for(int i = preamble; i<data.Count();i++)
+    for (int i = preamble; i < data.Count(); i++)
     {
-        if (!PriorHasSum(data,i, preamble))
+        if (!PriorHasSum(data, i, preamble))
+        {
             return data[i];
+        }
     }
 
     return 0;
@@ -19,15 +20,24 @@ long ChallengeOne(string filepath, int preamble)
 
 long ChallengeTwo(string filepath, int preamble)
 {
-    var data = BuildData(filepath).ToArray();
+    long[] data = BuildData(filepath).ToArray();
     long magicNumber = ChallengeOne(filepath, preamble);
+    int pos = Array.IndexOf(data, magicNumber);
 
-    for (int i = 0; i < data.Count(); ++i)
+    // start immediate prior to magicNumber
+    for (int j = pos - 1; j >= 0; j--)
     {
-        var sum = data[i];
-        for (int j = i + 1; j < preamble + i; j++)
+        long sum = data[j];
+        // Begin summation of elements in reverse order
+        for (int i = j - 1; i > 0; i--)
         {
-            sum += data[j];
+            sum += data[i];
+            // as soon as sum is hit
+            if (sum > magicNumber)
+            {
+                i = 0;
+                break;
+            }
             if (sum == magicNumber)
             {
                 return data[i..j].Min() + data[i..j].Max();
@@ -38,15 +48,16 @@ long ChallengeTwo(string filepath, int preamble)
     return 0;
 }
 
-bool PriorHasSum(List<long> data,int pos, int count)
+bool PriorHasSum(List<long> data, int pos, int count)
 {
     List<long> sample = new(data.GetRange(pos - count, count));
     if (sample.Any(num => sample.Contains(data[pos] - num)))
+    {
         return true;
+    }
 
     return false;
 }
-
 
 List<long> BuildData(string fp) => File.ReadAllLines(fp).Select(long.Parse).ToList();
 
